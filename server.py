@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Davidson, Richard 2021
 #
 # You can start this by executing it in python:
 # python server.py
@@ -22,7 +23,7 @@
 
 
 import flask
-from flask import Flask, request
+from flask import Flask, request, redirect
 import json
 app = Flask(__name__)
 app.debug = True
@@ -74,27 +75,74 @@ def flask_post_json():
 @app.route("/")
 def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return None
+    #https://www.w3schools.com/python/python_try_except.asp
+    try:
+        #https://stackoverflow.com/questions/14343812/redirecting-to-url-in-flask
+        return redirect("/static/index.html", code=302) #redirect to /static/index.html
+    except:
+        #https://stackoverflow.com/questions/7824101/return-http-status-code-201-in-flask
+        #https://stackoverflow.com/questions/12435297/how-do-i-jsonify-a-list-in-flask
+        return json.dumps("Error Redirecting"), 500 #500 not 400 because a redirection error would be on the server side
+
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
-    return None
+    #https://www.w3schools.com/python/python_try_except.asp
+    try:
+        data = flask_post_json() #get the body using the given flask method
+        myWorld.set(entity,data) #use the given set function to add an entity to our world
+        #https://stackoverflow.com/questions/12435297/how-do-i-jsonify-a-list-in-flask
+        data = json.dumps(data) #get the JSON of the data from the request
+        #https://stackoverflow.com/questions/7824101/return-http-status-code-201-in-flask
+        return data, 200 #return the data of the request in JSON format with status code 200
+    except:
+        #https://stackoverflow.com/questions/7824101/return-http-status-code-201-in-flask
+        #https://stackoverflow.com/questions/12435297/how-do-i-jsonify-a-list-in-flask
+        return json.dumps("Error Adding entity to world"), 404
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
-    return None
+    #https://www.w3schools.com/python/python_try_except.asp
+    try:
+        #https://stackoverflow.com/questions/12435297/how-do-i-jsonify-a-list-in-flask
+        requestedWorld = json.dumps(myWorld.world()) #Get what the world variable contains in JSON format
+        #https://stackoverflow.com/questions/7824101/return-http-status-code-201-in-flask
+        return requestedWorld, 200 #return the world with status code 200
+    except:
+        #https://stackoverflow.com/questions/12435297/how-do-i-jsonify-a-list-in-flask
+        #https://stackoverflow.com/questions/7824101/return-http-status-code-201-in-flask
+        return json.dumps("Error retreiving world"), 500 #500 not 400 not being able to return the world would be a server side error
 
-@app.route("/entity/<entity>")    
+@app.route("/entity/<entity>")
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    #https://www.w3schools.com/python/python_try_except.asp
+    try:
+        #https://stackoverflow.com/questions/12435297/how-do-i-jsonify-a-list-in-flask
+        requestedEntity = json.dumps(myWorld.get(entity)) #use the built in get method to get the specific entity and transform it to JSON
+        #https://stackoverflow.com/questions/7824101/return-http-status-code-201-in-flask
+        return requestedEntity, 200 #return the entity as JSON with status code 200
+    except:
+        #https://stackoverflow.com/questions/12435297/how-do-i-jsonify-a-list-in-flask
+        #https://stackoverflow.com/questions/7824101/return-http-status-code-201-in-flask
+        return json.dumps("Error retreiving entity"), 404
+
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    return None
+    #https://www.w3schools.com/python/python_try_except.asp
+    try:
+        myWorld.clear() #use the provided method to clear the world
+        #https://stackoverflow.com/questions/12435297/how-do-i-jsonify-a-list-in-flask
+        #https://stackoverflow.com/questions/7824101/return-http-status-code-201-in-flask
+        return json.dumps("World cleared successfully"), 200
+    except:
+        #https://stackoverflow.com/questions/12435297/how-do-i-jsonify-a-list-in-flask
+        #https://stackoverflow.com/questions/7824101/return-http-status-code-201-in-flask
+        return json.dumps("World was not cleared successfully"),  500 #500 not 400 not being able to clear the world would be a server side error
 
 if __name__ == "__main__":
     app.run()
